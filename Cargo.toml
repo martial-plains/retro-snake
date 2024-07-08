@@ -1,0 +1,49 @@
+[package]
+name = "retro-snake"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0 OR CC0-1.0"
+
+# Compile with Performance Optimizations:
+# https://bevyengine.org/learn/book/getting-started/setup/#compile-with-performance-optimizations
+
+# Enable a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
+
+[dependencies]
+anyhow = "1.0.86"
+bevy = { version = "0.14", default-features = false, features = [
+    "animation",
+    "bevy_asset",
+    "bevy_state",
+    "bevy_color",
+    "bevy_gilrs",
+    "bevy_scene",
+    "bevy_winit",
+    "bevy_core_pipeline",
+    "bevy_pbr",
+    "bevy_gltf",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_text",
+    "bevy_ui",
+    "multi_threaded",
+    "png",
+    "hdr",
+    "x11",
+    "bevy_gizmos",
+    "tonemapping_luts",
+    "smaa_luts",
+    "default_font",
+    "webgl2",
+    "sysinfo_plugin",
+] }
+bevy-inspector-egui = "0.25.0"
+bevy_kira_audio = "0.20.0"
+bevy_vector_shapes = "0.8.0"
+rand = "0.8.5"
