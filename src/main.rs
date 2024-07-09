@@ -5,7 +5,6 @@
 #![feature(const_fn_floating_point_arithmetic)]
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
-use audio::audio_plugin;
 use bevy::{asset::AssetMetaCheck, prelude::*, window::WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_vector_shapes::ShapePlugin;
@@ -71,7 +70,7 @@ fn main() {
                     ..WindowPlugin::default()
                 }),
         )
-        .add_plugins(audio_plugin)
+        .add_plugins(audio::plugin)
         .add_plugins(ShapePlugin::default())
         .add_plugins((food::plugin, snake::plugin, hud::plugin))
         .add_event::<CollisionEvent>()

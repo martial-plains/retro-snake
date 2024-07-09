@@ -3,7 +3,7 @@ use bevy_kira_audio::{Audio, AudioChannel, AudioControl, AudioPlugin, AudioSourc
 
 use crate::GameState;
 
-pub fn audio_plugin(app: &mut App) {
+pub fn plugin(app: &mut App) {
     app.add_plugins(AudioPlugin)
         .add_systems(PreStartup, load_audio)
         .add_systems(OnEnter(GameState::FoodEaten), play_eat_sfx)
