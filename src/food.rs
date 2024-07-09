@@ -17,8 +17,8 @@ fn generate_random_pos() -> Vec2 {
     let mut rng = rand::thread_rng();
 
     Vec2::new(
-        (rng.gen_range(0..CELL_COUNT as usize - 1)) as f32,
-        (rng.gen_range(0..CELL_COUNT as usize - 1)) as f32,
+        rng.gen_range(0.0..CELL_COUNT - 1.0).round(),
+        rng.gen_range(0.0..CELL_COUNT - 1.0).round(),
     )
 }
 

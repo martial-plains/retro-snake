@@ -3,7 +3,12 @@
 // workflow treats them as errors, so this allows them throughout the project.
 // Feel free to delete this line.
 #![feature(const_fn_floating_point_arithmetic)]
-#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::too_many_arguments,
+    clippy::type_complexity,
+    clippy::needless_pass_by_value
+)]
 
 use bevy::{asset::AssetMetaCheck, prelude::*, window::WindowResolution};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -115,11 +120,11 @@ fn check_collision_with_food(
 fn check_collision_with_edges(snake: Res<Snake>, mut collision_event: EventWriter<CollisionEvent>) {
     let Some(head) = snake.head() else { return };
 
-    if head.x == CELL_COUNT - 1.0 || head.x == -1.0 {
+    if head.x == CELL_COUNT - 1.0 || (head.x - -1.0).abs() < f32::EPSILON {
         collision_event.send(CollisionEvent::Edges);
     }
 
-    if head.y == CELL_COUNT - 1.0 || head.y == -1.0 {
+    if head.y == CELL_COUNT - 1.0 || (head.y - -1.0).abs() < f32::EPSILON {
         collision_event.send(CollisionEvent::Edges);
     }
 }
@@ -154,8 +159,8 @@ fn handle_collision_event(
                     let mut rng = rand::thread_rng();
                     loop {
                         let value = Vec2::new(
-                            (rng.gen_range(0..CELL_COUNT as usize - 1)) as f32,
-                            (rng.gen_range(0..CELL_COUNT as usize - 1)) as f32,
+                            rng.gen_range(0.0..CELL_COUNT - 1.0).round(),
+                            rng.gen_range(0.0..CELL_COUNT - 1.0).round(),
                         );
 
                         if !snake.body().contains(&value) {
@@ -186,8 +191,8 @@ fn game_over(
     score.0 = 0;
     snake.should_reset = true;
     food.position = Vec2::new(
-        (rng.gen_range(0..CELL_COUNT as usize - 1)) as f32,
-        (rng.gen_range(0..CELL_COUNT as usize - 1)) as f32,
+        rng.gen_range(0.0..CELL_COUNT - 1.0).round(),
+        rng.gen_range(0.0..CELL_COUNT - 1.0).round(),
     );
 
     next_game_state.set(GameState::GameOver);
