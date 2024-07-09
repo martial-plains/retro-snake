@@ -25,7 +25,7 @@ fn play_wall_sfx(
     mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     audio.play(audio_state.wall_handle.clone());
-    next_game_state.set(GameState::Playing);
+    next_game_state.set(GameState::Paused);
 }
 
 fn play_eat_sfx(

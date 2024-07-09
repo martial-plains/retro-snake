@@ -11,6 +11,7 @@
 )]
 
 use bevy::{asset::AssetMetaCheck, prelude::*, window::WindowResolution};
+#[cfg(debug_assertions)]
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_vector_shapes::ShapePlugin;
 use food::Food;
@@ -28,8 +29,6 @@ const CELL_SIZE: f32 = 30.0;
 const CELL_COUNT: f32 = 25.0;
 
 const OFFSET: f32 = 75.0;
-
-static mut GAME_OVER: bool = false;
 
 const SCREEN_SIZE: f32 = 2.0 * OFFSET + CELL_SIZE * CELL_COUNT;
 
@@ -196,10 +195,6 @@ fn game_over(
     );
 
     next_game_state.set(GameState::GameOver);
-
-    unsafe {
-        GAME_OVER = true;
-    }
 }
 
 fn setup_camera(mut commands: Commands) {

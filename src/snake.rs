@@ -6,7 +6,7 @@ use bevy_vector_shapes::{
     shapes::{RectangleBundle, ShapeBundle},
 };
 
-use crate::{utils::DARK_GREEN, CELL_SIZE, GAME_OVER};
+use crate::{utils::DARK_GREEN, GameState, CELL_SIZE};
 
 #[derive(Debug, Resource, Clone)]
 pub struct Snake {
@@ -95,6 +95,7 @@ fn update(
     mut commands: Commands,
     mut snake: ResMut<Snake>,
     mut direction: ResMut<Direction>,
+    game_state: Res<State<GameState>>,
     q: Query<(Entity, &Segment)>,
 ) {
     if snake.should_reset {
@@ -118,7 +119,7 @@ fn update(
         }
     }
 
-    if unsafe { GAME_OVER } {
+    if matches!(*game_state.get(), GameState::GameOver) {
         return;
     }
 
@@ -141,31 +142,27 @@ fn update(
     }
 }
 
-fn keyboard_input(keys: Res<ButtonInput<KeyCode>>, mut direction: ResMut<Direction>) {
+fn keyboard_input(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut direction: ResMut<Direction>,
+    mut next_game_state: ResMut<NextState<GameState>>,
+) {
     if keys.just_pressed(KeyCode::ArrowUp) && *direction != Direction::Up.opposite() {
         *direction = Direction::Up;
-        unsafe {
-            GAME_OVER = false;
-        }
+        next_game_state.set(GameState::Playing);
     }
     if keys.just_released(KeyCode::ArrowDown) && *direction != Direction::Down.opposite() {
         *direction = Direction::Down;
-        unsafe {
-            GAME_OVER = false;
-        }
+        next_game_state.set(GameState::Playing);
     }
     if keys.pressed(KeyCode::ArrowLeft) && *direction != Direction::Left.opposite() {
         *direction = Direction::Left;
-        unsafe {
-            GAME_OVER = false;
-        }
+        next_game_state.set(GameState::Playing);
     }
 
     if keys.pressed(KeyCode::ArrowRight) && *direction != Direction::Right.opposite() {
         *direction = Direction::Right;
-        unsafe {
-            GAME_OVER = false;
-        }
+        next_game_state.set(GameState::Playing);
     }
 }
 
