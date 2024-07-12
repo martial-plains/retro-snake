@@ -12,7 +12,6 @@ use crate::{utils::DARK_GREEN, GameState, CELL_SIZE};
 pub struct Snake {
     body: VecDeque<Vec2>,
     pub is_growing: bool,
-    pub should_reset: bool,
 }
 
 impl Snake {
@@ -27,13 +26,13 @@ impl Snake {
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, setup)
+        .add_systems(OnEnter(GameState::GameOver), reset_snake)
         .add_systems(Update, update.run_if(on_timer(Duration::from_millis(200))))
-        .add_systems(Update, keyboard_input.after(update))
         .add_systems(PostUpdate, position_translation);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Resource)]
-enum Direction {
+pub enum Direction {
     Up,
     Down,
     Right,
@@ -41,7 +40,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn to_vec2(self) -> Vec2 {
+    pub fn to_vec2(self) -> Vec2 {
         match self {
             Self::Up => Vec2 { x: 0.0, y: -1.0 },
             Self::Down => Vec2 { x: 0.0, y: 1.0 },
@@ -50,7 +49,7 @@ impl Direction {
         }
     }
 
-    fn opposite(self) -> Self {
+    pub fn opposite(self) -> Self {
         match self {
             Self::Up => Self::Down,
             Self::Down => Self::Up,
@@ -75,7 +74,6 @@ impl Default for Snake {
             .copied()
             .collect::<VecDeque<_>>(),
             is_growing: false,
-            should_reset: false,
         }
     }
 }
@@ -94,32 +92,11 @@ fn setup(mut commands: Commands) {
 fn update(
     mut commands: Commands,
     mut snake: ResMut<Snake>,
-    mut direction: ResMut<Direction>,
+    direction: Res<Direction>,
     game_state: Res<State<GameState>>,
     q: Query<(Entity, &Segment)>,
 ) {
-    if snake.should_reset {
-        snake.body = [
-            Vec2::new(6.0, 9.0),
-            Vec2::new(5.0, 9.0),
-            Vec2::new(4.0, 9.0),
-        ]
-        .iter()
-        .copied()
-        .collect::<VecDeque<_>>();
-        *direction = Direction::Right;
-        snake.should_reset = false;
-
-        for (entity_id, _) in q.iter() {
-            commands.entity(entity_id).despawn();
-        }
-
-        for position in &snake.body {
-            spawn_snake_segment(&mut commands, *position);
-        }
-    }
-
-    if matches!(*game_state.get(), GameState::GameOver) {
+    if matches!(*game_state.get(), GameState::Paused) {
         return;
     }
 
@@ -142,30 +119,6 @@ fn update(
     }
 }
 
-fn keyboard_input(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut direction: ResMut<Direction>,
-    mut next_game_state: ResMut<NextState<GameState>>,
-) {
-    if keys.just_pressed(KeyCode::ArrowUp) && *direction != Direction::Up.opposite() {
-        *direction = Direction::Up;
-        next_game_state.set(GameState::Playing);
-    }
-    if keys.just_released(KeyCode::ArrowDown) && *direction != Direction::Down.opposite() {
-        *direction = Direction::Down;
-        next_game_state.set(GameState::Playing);
-    }
-    if keys.pressed(KeyCode::ArrowLeft) && *direction != Direction::Left.opposite() {
-        *direction = Direction::Left;
-        next_game_state.set(GameState::Playing);
-    }
-
-    if keys.pressed(KeyCode::ArrowRight) && *direction != Direction::Right.opposite() {
-        *direction = Direction::Right;
-        next_game_state.set(GameState::Playing);
-    }
-}
-
 fn spawn_snake_segment(commands: &mut Commands, position: Vec2) {
     commands
         .spawn(ShapeBundle::rect(
@@ -179,6 +132,31 @@ fn spawn_snake_segment(commands: &mut Commands, position: Vec2) {
             Vec2::splat(CELL_SIZE),
         ))
         .insert(Segment(position));
+}
+
+fn reset_snake(
+    mut commands: Commands,
+    mut snake: ResMut<Snake>,
+    mut direction: ResMut<Direction>,
+    q: Query<(Entity, &Segment)>,
+) {
+    snake.body = [
+        Vec2::new(6.0, 9.0),
+        Vec2::new(5.0, 9.0),
+        Vec2::new(4.0, 9.0),
+    ]
+    .iter()
+    .copied()
+    .collect::<VecDeque<_>>();
+    *direction = Direction::Right;
+
+    for (entity_id, _) in q.iter() {
+        commands.entity(entity_id).despawn();
+    }
+
+    for position in &snake.body {
+        spawn_snake_segment(&mut commands, *position);
+    }
 }
 
 fn position_translation(mut q: Query<(&Segment, &mut Transform)>) {

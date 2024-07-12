@@ -4,14 +4,17 @@ use bevy_vector_shapes::{
     shapes::{RectangleBundle, ShapeBundle},
 };
 
-use crate::{utils::DARK_GREEN, Score, CELL_COUNT, CELL_SIZE};
+use crate::{utils::DARK_GREEN, GameState, CELL_COUNT, CELL_SIZE};
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Startup, draw_border)
+    app.insert_resource(Score(0))
+        .add_systems(Startup, draw_border)
         .add_systems(Startup, draw_title)
         .add_systems(Startup, draw_score)
+        .add_systems(OnEnter(GameState::FoodEaten), increase_socre)
+        .add_systems(OnEnter(GameState::GameOver), reset_socre)
         .add_systems(
-            Update,
+            PostUpdate,
             (
                 border_position_translation,
                 title_position_translation,
@@ -21,6 +24,9 @@ pub fn plugin(app: &mut App) {
         .add_systems(Update, update_score_text);
 }
 
+#[derive(Debug, Resource)]
+struct Score(usize);
+
 #[derive(Debug, Component)]
 struct Border(Vec2);
 
@@ -29,6 +35,14 @@ struct Title(Vec2);
 
 #[derive(Debug, Component)]
 struct ScoreText(Vec2);
+
+fn increase_socre(mut score: ResMut<Score>) {
+    score.0 += 1;
+}
+
+fn reset_socre(mut score: ResMut<Score>) {
+    score.0 = 0;
+}
 
 fn update_score_text(score: Res<Score>, mut query: Query<&mut Text, With<ScoreText>>) {
     for mut text in &mut query {
