@@ -17,7 +17,7 @@ opt-level = 3
 
 [dependencies]
 anyhow = "1.0.86"
-bevy = { version = "0.14", default-features = false, features = [
+bevy = { version = "0.14.2", default-features = false, features = [
     "animation",
     "bevy_asset",
     "bevy_state",
@@ -43,7 +43,7 @@ bevy = { version = "0.14", default-features = false, features = [
     "webgl2",
     "sysinfo_plugin",
 ] }
-bevy-inspector-egui = "0.25.0"
+bevy-inspector-egui = "0.27.0"
 bevy_kira_audio = "0.20.0"
 bevy_vector_shapes = "0.8.0"
 rand = "0.8.5"
